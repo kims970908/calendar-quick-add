@@ -5,20 +5,30 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Google 캘린더 빠른 저장 설정</title>
     <style>
+      :root {
+        --gh-border: #d0d7de;
+        --gh-bg: #ffffff;
+        --gh-muted: #57606a;
+        --gh-text: #24292f;
+        --gh-accent: #0969da;
+        --gh-accent-hover: #0550ae;
+        --gh-surface: #f6f8fa;
+        --gh-shadow: 0 12px 28px rgba(140, 149, 159, 0.2);
+      }
       body {
-        font-family: "IBM Plex Sans", "Source Sans 3", "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+        font-family: "SF Pro Text", "Segoe UI", "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
         margin: 0;
         padding: 28px;
-        background: #f6f8fa;
-        color: #24292f;
+        background: var(--gh-surface);
+        color: var(--gh-text);
       }
       .card {
         max-width: 520px;
-        background: #ffffff;
-        border: 1px solid #d0d7de;
+        background: var(--gh-bg);
+        border: 1px solid var(--gh-border);
         border-radius: 12px;
         padding: 20px;
-        box-shadow: 0 12px 28px rgba(140, 149, 159, 0.2);
+        box-shadow: var(--gh-shadow);
       }
       h2 {
         margin: 0 0 16px;
@@ -31,7 +41,7 @@
       label {
         display: block;
         font-size: 12px;
-        color: #57606a;
+        color: var(--gh-muted);
         margin-bottom: 6px;
       }
       input {
@@ -39,40 +49,40 @@
         box-sizing: border-box;
         padding: 8px 10px;
         font-size: 13px;
-        border: 1px solid #d0d7de;
+        border: 1px solid var(--gh-border);
         border-radius: 8px;
-        background: #f6f8fa;
-        color: #24292f;
+        background: var(--gh-surface);
+        color: var(--gh-text);
       }
       input:focus {
-        border-color: #0969da;
+        border-color: var(--gh-accent);
         box-shadow: 0 0 0 3px rgba(9, 105, 218, 0.15);
         outline: none;
-        background: #ffffff;
+        background: var(--gh-bg);
       }
       button {
         padding: 8px 14px;
-        border: 1px solid #0969da;
-        background: #0969da;
+        border: 1px solid var(--gh-accent);
+        background: var(--gh-accent);
         color: #ffffff;
         border-radius: 8px;
         cursor: pointer;
         font-size: 13px;
       }
       button:hover {
-        background: #0550ae;
+        background: var(--gh-accent-hover);
       }
       .status {
         margin-top: 10px;
         font-size: 12px;
-        color: #0969da;
+        color: var(--gh-accent);
       }
       .checkbox-label {
         display: flex;
         align-items: center;
         gap: 8px;
         font-size: 13px;
-        color: #24292f;
+        color: var(--gh-text);
       }
       .checkbox-label input {
         width: auto;
