@@ -76,6 +76,9 @@ async function handleMouseUp(event) {
   ui.setStatus("");
   ui.setWarning("");
   ui.setDate(parsed.date);
+  
+  // URL을 메모(description)에 미리 채워넣음
+  ui.inputs.description.value = `URL: ${window.location.href}`;
 
   const rect = getSelectionRect();
   if (rect) {
@@ -86,7 +89,7 @@ async function handleMouseUp(event) {
 }
 
 
-async function normalizeDateString(value) {
+function normalizeDateString(value) {
   const trimmed = (value || "").trim();
   const match = trimmed.match(/^(\d{4})-(\d{2})-(\d{2})$/);
   if (!match) return null;
@@ -105,14 +108,17 @@ async function handleSave() {
   const title = ui.inputs.title.value.trim();
   const rawStartTime = ui.inputs.startTime.value.trim();
   const rawEndTime = ui.inputs.endTime.value.trim();
-  const allDay = !rawStartTime;
+  const allDay = !rawStartTime && !rawEndTime;
   const startTime = rawStartTime;
   let duration = null;
+  if (rawEndTime && !rawStartTime) {
+    ui.setWarning("시작 시간을 먼저 입력해 주세요.");
+    return;
+  }
   if (!allDay) {
     if (rawEndTime) {
-      // 시작 시간과 종료 시간으로부터 duration 계산
-      const [startHour, startMin] = startTime.split(':').map(Number);
-      const [endHour, endMin] = rawEndTime.split(':').map(Number);
+      const [startHour, startMin] = startTime.split(":").map(Number);
+      const [endHour, endMin] = rawEndTime.split(":").map(Number);
       const startMinutes = startHour * 60 + startMin;
       const endMinutes = endHour * 60 + endMin;
       duration = endMinutes - startMinutes;
@@ -170,6 +176,7 @@ function resetForm() {
   ui.inputs.title.value = "";
   ui.inputs.startTime.value = "";
   ui.inputs.endTime.value = "";
+  ui.inputs.duration.value = "";
   ui.inputs.description.value = "";
   ui.setStatus("");
   ui.setWarning("");

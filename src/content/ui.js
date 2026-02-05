@@ -1,4 +1,4 @@
-function createInput({ label, type, id, icon }) {
+function createInput({ label, type, id }) {
   const wrapper = document.createElement("div");
   wrapper.className = "gcal-field";
 
@@ -6,25 +6,24 @@ function createInput({ label, type, id, icon }) {
   labelEl.textContent = label;
   labelEl.setAttribute("for", id);
 
-  const inputWrapper = document.createElement("div");
-  inputWrapper.className = "gcal-input-wrapper";
-
-  if (icon) {
-    const iconEl = document.createElement("span");
-    iconEl.className = "gcal-icon";
-    iconEl.textContent = icon;
-    inputWrapper.appendChild(iconEl);
-  }
-
   const input = document.createElement("input");
   input.type = type;
   input.id = id;
-  input.className = icon ? "with-icon" : "";
 
-  inputWrapper.appendChild(input);
   wrapper.appendChild(labelEl);
-  wrapper.appendChild(inputWrapper);
+  wrapper.appendChild(input);
   return { wrapper, input };
+}
+
+function pad(num) {
+  return String(num).padStart(2, "0");
+}
+
+function formatDate(date) {
+  const yyyy = date.getFullYear();
+  const mm = pad(date.getMonth() + 1);
+  const dd = pad(date.getDate());
+  return `${yyyy}-${mm}-${dd}`;
 }
 
 function createUI() {
@@ -32,14 +31,9 @@ function createUI() {
   container.id = "gcal-quick-add";
   container.style.display = "none";
 
-  const header = document.createElement("div");
-  header.className = "gcal-header";
-  
   const title = document.createElement("h3");
-  title.innerHTML = '📅 <span>Google 캘린더 저장</span>';
-  header.appendChild(title);
-  
-  container.appendChild(header);
+  title.textContent = "Google 캘린더 저장";
+  container.appendChild(title);
 
   const warning = document.createElement("div");
   warning.className = "gcal-warning";
@@ -51,41 +45,147 @@ function createUI() {
   status.style.display = "none";
   container.appendChild(status);
 
-  const dateField = createInput({ label: "날짜", type: "text", id: "gcal-date", icon: "📅" });
-  const titleField = createInput({ label: "제목", type: "text", id: "gcal-title", icon: "✏️" });
+  const dateField = createInput({ label: "날짜", type: "text", id: "gcal-date" });
+  const titleField = createInput({ label: "제목", type: "text", id: "gcal-title" });
+  const startTimeField = createInput({ label: "시작 시간", type: "time", id: "gcal-start" });
+  const endTimeField = createInput({ label: "종료 시간", type: "time", id: "gcal-end" });
+  const durationField = createInput({ label: "소요 시간(분)", type: "number", id: "gcal-duration" });
+  durationField.input.min = "1";
+
   dateField.input.placeholder = "YYYY-MM-DD";
-  const startTimeField = createInput({ label: "시작 시간", type: "time", id: "gcal-start", icon: "🕐" });
-  const endTimeField = createInput({ label: "종료 시간", type: "time", id: "gcal-end", icon: "🕐" });
+
+  const calendar = document.createElement("div");
+  calendar.className = "gcal-calendar";
+  calendar.style.display = "none";
+
+  const calHeader = document.createElement("div");
+  calHeader.className = "gcal-calendar-header";
+  const prevBtn = document.createElement("button");
+  prevBtn.type = "button";
+  prevBtn.textContent = "❮";
+  const nextBtn = document.createElement("button");
+  nextBtn.type = "button";
+  nextBtn.textContent = "❯";
+  const calTitle = document.createElement("span");
+  calTitle.className = "gcal-calendar-title";
+  calHeader.appendChild(prevBtn);
+  calHeader.appendChild(calTitle);
+  calHeader.appendChild(nextBtn);
+
+  const calGrid = document.createElement("div");
+  calGrid.className = "gcal-calendar-grid";
+
+  calendar.appendChild(calHeader);
+  calendar.appendChild(calGrid);
+  dateField.wrapper.appendChild(calendar);
 
   const descWrapper = document.createElement("div");
   descWrapper.className = "gcal-field";
   const descLabel = document.createElement("label");
-  descLabel.innerHTML = "📝 메모";
+  descLabel.textContent = "메모";
   descLabel.setAttribute("for", "gcal-desc");
   const desc = document.createElement("textarea");
   desc.id = "gcal-desc";
-  desc.placeholder = "일정에 대한 추가 정보를 입력하세요...";
+  desc.rows = 3;
   descWrapper.appendChild(descLabel);
   descWrapper.appendChild(desc);
 
-  container.appendChild(dateField.wrapper);
-  container.appendChild(titleField.wrapper);
-  container.appendChild(startTimeField.wrapper);
-  container.appendChild(endTimeField.wrapper);
-  container.appendChild(descWrapper);
+  const body = document.createElement("div");
+  body.className = "gcal-body";
+  body.appendChild(dateField.wrapper);
+  body.appendChild(titleField.wrapper);
+  body.appendChild(startTimeField.wrapper);
+  body.appendChild(endTimeField.wrapper);
+  body.appendChild(durationField.wrapper);
+  body.appendChild(descWrapper);
+  container.appendChild(body);
 
   const actions = document.createElement("div");
   actions.className = "gcal-actions";
   const saveBtn = document.createElement("button");
   saveBtn.type = "button";
-  saveBtn.innerHTML = '<span class="btn-icon">✓</span> 저장';
+  saveBtn.textContent = "저장";
   saveBtn.className = "gcal-primary";
   const cancelBtn = document.createElement("button");
   cancelBtn.type = "button";
-  cancelBtn.innerHTML = '<span class="btn-icon">✕</span> 취소';
+  cancelBtn.textContent = "취소";
   actions.appendChild(cancelBtn);
   actions.appendChild(saveBtn);
   container.appendChild(actions);
+
+  let currentYear = new Date().getFullYear();
+  let currentMonth = new Date().getMonth();
+
+  function renderCalendar() {
+    calTitle.textContent = `${currentYear}년 ${currentMonth + 1}월`;
+    calGrid.innerHTML = "";
+
+    const dayNames = ["일", "월", "화", "수", "목", "금", "토"];
+    dayNames.forEach((name) => {
+      const label = document.createElement("div");
+      label.className = "gcal-calendar-dayname";
+      label.textContent = name;
+      calGrid.appendChild(label);
+    });
+
+    const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+    const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+
+    for (let i = 0; i < firstDay; i += 1) {
+      const empty = document.createElement("div");
+      empty.className = "gcal-calendar-empty";
+      calGrid.appendChild(empty);
+    }
+
+    for (let day = 1; day <= daysInMonth; day += 1) {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "gcal-calendar-day";
+      btn.textContent = String(day);
+      btn.addEventListener("click", () => {
+        const date = new Date(currentYear, currentMonth, day);
+        dateField.input.value = formatDate(date);
+        calendar.style.display = "none";
+      });
+      calGrid.appendChild(btn);
+    }
+  }
+
+  function showCalendar() {
+    calendar.style.display = "block";
+    renderCalendar();
+  }
+
+  function hideCalendar() {
+    calendar.style.display = "none";
+  }
+
+  prevBtn.addEventListener("click", () => {
+    currentMonth -= 1;
+    if (currentMonth < 0) {
+      currentMonth = 11;
+      currentYear -= 1;
+    }
+    renderCalendar();
+  });
+
+  nextBtn.addEventListener("click", () => {
+    currentMonth += 1;
+    if (currentMonth > 11) {
+      currentMonth = 0;
+      currentYear += 1;
+    }
+    renderCalendar();
+  });
+
+  dateField.input.addEventListener("focus", showCalendar);
+  dateField.input.addEventListener("click", showCalendar);
+
+  document.addEventListener("mousedown", (event) => {
+    if (!dateField.wrapper.contains(event.target)) {
+      hideCalendar();
+    }
+  });
 
   function showAt(x, y) {
     container.style.left = `${Math.max(8, x)}px`;
@@ -97,6 +197,7 @@ function createUI() {
     container.style.display = "none";
     status.style.display = "none";
     warning.style.display = "none";
+    hideCalendar();
   }
 
   function setWarning(message) {
@@ -126,11 +227,7 @@ function createUI() {
       dateField.input.value = "";
       return;
     }
-    const yyyy = date.getFullYear();
-    const mm = String(date.getMonth() + 1).padStart(2, "0");
-    const dd = String(date.getDate()).padStart(2, "0");
-    dateField.input.value = `${yyyy}-${mm}-${dd}`;
-    dateField.input.placeholder = "YYYY-MM-DD";
+    dateField.input.value = formatDate(date);
   }
 
   return {
@@ -140,6 +237,7 @@ function createUI() {
       title: titleField.input,
       startTime: startTimeField.input,
       endTime: endTimeField.input,
+      duration: durationField.input,
       description: desc
     },
     buttons: { saveBtn, cancelBtn },
