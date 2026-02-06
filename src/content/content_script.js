@@ -191,6 +191,19 @@ function isUiVisible() {
   return ui.container.style.display !== "none";
 }
 
+
+function openEmptyForm() {
+  ui.setStatus("");
+  ui.setWarning("");
+  ui.setDate(null);
+  ui.inputs.title.value = "";
+  ui.inputs.startTime.value = "";
+  ui.inputs.endTime.value = "";
+  ui.inputs.duration.value = "";
+  ui.inputs.description.value = `URL: ${window.location.href}`;
+  ui.showAt(window.scrollX + 120, window.scrollY + 120);
+}
+
 function handleCancel() {
   resetForm();
   ui.hide();
@@ -204,5 +217,12 @@ document.addEventListener("mouseup", handleMouseUp);
 document.addEventListener("keydown", (event) => {
   if (event.key === "Escape" && isUiVisible()) {
     handleCancel();
+  }
+});
+
+
+chrome.runtime.onMessage.addListener((message) => {
+  if (message?.type === "OPEN_EMPTY_FORM") {
+    openEmptyForm();
   }
 });

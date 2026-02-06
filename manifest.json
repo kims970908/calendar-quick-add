@@ -2,8 +2,9 @@
   "manifest_version": 3,
   "name": "Selection to Google Calendar",
   "version": "0.1.0",
+  "key" : "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAkW34kMhuYmdsCBRMXpAadNR2d7co3jp7GCqJlpKVCoVkc7aIrefflgONtLdgdd8ZgNqCp2OBtieN00OWIvrRmgQ+7pKICt1nkB4wDQdgn30HgDII5gQrbZYAQOplSKzEsZfG6DY61ZaSNkBfnAkfQmxikokbVyJ3KnS9esXRgETizLM+piI2fmI14XZfFeDAh7RpJYYSgkvAIrWJepNMC+xxVIVXSlh57sKD6J/gKFNM9FwDj9080WgaRqG1ENrJW9H7ebKkq+go3WkctmjholoJAg880xmUDDVg/cVkybEhEUID9kjJCJNJKlR2+QK5Rq30B9BMp4APedh9mA5R8wIDAQAB",
   "description": "Select a date on any page and save to Google Calendar.",
-  "permissions": ["identity", "storage"],
+  "permissions": ["identity", "storage", "contextMenus"],
   "host_permissions": ["https://www.googleapis.com/*"],
   "background": { "service_worker": "src/background/service_worker.js", "type": "module" },
   "content_scripts": [

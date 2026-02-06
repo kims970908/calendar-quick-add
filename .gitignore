@@ -1,0 +1,20 @@
+# Private key files
+*.pem
+
+# Chrome extension package files
+*.crx
+
+# Node modules (if using npm in the future)
+node_modules/
+
+# Environment files
+.env
+.env.local
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/

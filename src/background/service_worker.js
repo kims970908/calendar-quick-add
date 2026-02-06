@@ -1,3 +1,20 @@
+
+const CONTEXT_MENU_ID = "gcal_add_event";
+
+chrome.runtime.onInstalled.addListener(() => {
+  chrome.contextMenus.create({
+    id: CONTEXT_MENU_ID,
+    title: "Google 캘린더에 추가",
+    contexts: ["page", "selection"]
+  });
+});
+
+chrome.contextMenus.onClicked.addListener((info, tab) => {
+  if (info.menuItemId !== CONTEXT_MENU_ID) return;
+  if (!tab || !tab.id) return;
+  chrome.tabs.sendMessage(tab.id, { type: "OPEN_EMPTY_FORM" });
+});
+
 import { DEFAULTS, STORAGE_KEYS } from "../shared/constants.js";
 
 const CALENDAR_ENDPOINT = "https://www.googleapis.com/calendar/v3/calendars/primary/events";
