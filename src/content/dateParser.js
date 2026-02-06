@@ -51,6 +51,52 @@ function parseKorean(text) {
   return { date, matchedText: match[0] };
 }
 
+function getMonthNumber(monthName) {
+  const months = {
+    january: 1, jan: 1,
+    february: 2, feb: 2,
+    march: 3, mar: 3,
+    april: 4, apr: 4,
+    may: 5,
+    june: 6, jun: 6,
+    july: 7, jul: 7,
+    august: 8, aug: 8,
+    september: 9, sep: 9, sept: 9,
+    october: 10, oct: 10,
+    november: 11, nov: 11,
+    december: 12, dec: 12
+  };
+  return months[monthName.toLowerCase()] || null;
+}
+
+function parseEnglish(text) {
+  // "5 February 2026" or "5 Feb 2026"
+  let match = text.match(/(\d{1,2})\s+([a-zA-Z]+)\s+(\d{2,4})/);
+  if (match) {
+    const day = Number(match[1]);
+    const month = getMonthNumber(match[2]);
+    const year = normalizeYear(Number(match[3]));
+    if (month) {
+      const date = buildDate(year, month, day);
+      if (date) return { date, matchedText: match[0] };
+    }
+  }
+
+  // "February 5, 2026" or "Feb 5, 2026"
+  match = text.match(/([a-zA-Z]+)\s+(\d{1,2}),?\s+(\d{2,4})/);
+  if (match) {
+    const month = getMonthNumber(match[1]);
+    const day = Number(match[2]);
+    const year = normalizeYear(Number(match[3]));
+    if (month) {
+      const date = buildDate(year, month, day);
+      if (date) return { date, matchedText: match[0] };
+    }
+  }
+
+  return null;
+}
+
 function parseDate(text, allowMmdd = true) {
   const trimmed = (text || "").trim();
   if (!trimmed) return null;
@@ -58,6 +104,10 @@ function parseDate(text, allowMmdd = true) {
   // Korean format: yyyy년 mm월 dd일 or yy년 mm월 dd일
   const korean = parseKorean(trimmed);
   if (korean) return korean;
+
+  // English format: "5 February 2026" or "February 5, 2026"
+  const english = parseEnglish(trimmed);
+  if (english) return english;
 
   // ISO-ish: yyyy-mm-dd / yyyy.mm.dd / yyyy/mm/dd
   const fullDate = parseWithPattern(trimmed, /(\d{4})\s*[\/\-\.]\s*(\d{1,2})\s*[\/\-\.]\s*(\d{1,2})/, 1, 2, 3);

@@ -182,6 +182,10 @@ function resetForm() {
   ui.setWarning("");
 }
 
+function isUiVisible() {
+  return ui.container.style.display !== "none";
+}
+
 function handleCancel() {
   resetForm();
   ui.hide();
@@ -191,3 +195,9 @@ ui.buttons.saveBtn.addEventListener("click", handleSave);
 ui.buttons.cancelBtn.addEventListener("click", handleCancel);
 
 document.addEventListener("mouseup", handleMouseUp);
+
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape" && isUiVisible()) {
+    handleCancel();
+  }
+});

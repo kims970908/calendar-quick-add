@@ -154,6 +154,24 @@ function createUI() {
   function showCalendar() {
     calendar.style.display = "block";
     renderCalendar();
+    
+    // 캘린더가 박스 하단을 넘어가는지 확인
+    setTimeout(() => {
+      const calendarRect = calendar.getBoundingClientRect();
+      const containerRect = container.getBoundingClientRect();
+      const dateFieldRect = dateField.input.getBoundingClientRect();
+      
+      // 캘린더 하단이 박스 하단을 넘어가는 경우
+      if (calendarRect.bottom > containerRect.bottom) {
+        // 날짜 필드 위쪽에 표시
+        calendar.style.top = "auto";
+        calendar.style.bottom = `calc(100% - ${dateFieldRect.top - containerRect.top}px)`;
+      } else {
+        // 기본 위치 (아래쪽)
+        calendar.style.top = "100%";
+        calendar.style.bottom = "auto";
+      }
+    }, 0);
   }
 
   function hideCalendar() {
@@ -188,9 +206,44 @@ function createUI() {
   });
 
   function showAt(x, y) {
+    // 일단 display를 block으로 설정하여 크기를 측정할 수 있게 함
+    container.style.display = "block";
     container.style.left = `${Math.max(8, x)}px`;
     container.style.top = `${Math.max(8, y)}px`;
-    container.style.display = "block";
+    
+    // UI의 실제 크기 측정
+    const containerWidth = container.offsetWidth;
+    const containerHeight = container.offsetHeight;
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+    const scrollX = window.scrollX;
+    const scrollY = window.scrollY;
+    
+    let finalX = Math.max(8, x);
+    let finalY = Math.max(8, y);
+    
+    // UI 오른쪽이 화면 오른쪽을 넘어가는지 확인
+    const uiRight = x + containerWidth;
+    const viewportRight = scrollX + viewportWidth;
+    
+    if (uiRight > viewportRight) {
+      // 화면을 넘어가면 왼쪽으로 조정
+      finalX = viewportRight - containerWidth - 8;
+      finalX = Math.max(8, finalX);
+    }
+    
+    // UI 하단이 화면 하단을 넘어가는지 확인
+    const uiBottom = y + containerHeight;
+    const viewportBottom = scrollY + viewportHeight;
+    
+    if (uiBottom > viewportBottom) {
+      // 화면을 넘어가면 선택 영역 위쪽에 표시
+      finalY = y - containerHeight - 16; // 16px 여백
+      finalY = Math.max(8, finalY);
+    }
+    
+    container.style.left = `${finalX}px`;
+    container.style.top = `${finalY}px`;
   }
 
   function hide() {

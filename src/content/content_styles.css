@@ -33,6 +33,7 @@
   flex-direction: column;
   gap: 6px;
   margin-bottom: 10px;
+  position: relative;
 }
 
 #gcal-quick-add label {
@@ -122,11 +123,19 @@
 }
 
 #gcal-quick-add .gcal-calendar {
-  margin-top: 8px;
-  padding: 10px;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin-top: 4px;
+  padding: 8px;
   border: 1px solid var(--gh-border);
   border-radius: 10px;
-  background: var(--gh-surface);
+  background: var(--gh-bg);
+  box-shadow: 0 4px 12px rgba(140, 149, 159, 0.15);
+  z-index: 10;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 #gcal-quick-add .gcal-calendar-header {
@@ -153,7 +162,7 @@
 #gcal-quick-add .gcal-calendar-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 6px;
+  gap: 3px;
 }
 
 #gcal-quick-add .gcal-calendar-dayname {
@@ -164,7 +173,8 @@
 
 #gcal-quick-add .gcal-calendar-day,
 #gcal-quick-add .gcal-calendar-empty {
-  height: 28px;
+  height: 32px;
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -173,9 +183,10 @@
 #gcal-quick-add .gcal-calendar-day {
   border: 1px solid var(--gh-border);
   background: var(--gh-bg);
-  border-radius: 6px;
+  border-radius: 4px;
   cursor: pointer;
   font-size: 11px;
+  min-width: 0;
 }
 
 #gcal-quick-add .gcal-calendar-day:hover {
