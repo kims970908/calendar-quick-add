@@ -1,13 +1,15 @@
 const STORAGE_KEYS = {
   defaultStartTime: "defaultStartTime",
   defaultDurationMinutes: "defaultDurationMinutes",
-  allowMmddParsing: "allowMmddParsing"
+  allowMmddParsing: "allowMmddParsing",
+  enabled: "enabled"
 };
 
 const DEFAULTS = {
   defaultStartTime: "09:00",
   defaultDurationMinutes: 60,
-  allowMmddParsing: true
+  allowMmddParsing: true,
+  enabled: true
 };
 
 const ui = window.gcalCreateUI();
@@ -18,7 +20,8 @@ function getSettings() {
     chrome.storage.sync.get({
       [STORAGE_KEYS.defaultStartTime]: DEFAULTS.defaultStartTime,
       [STORAGE_KEYS.defaultDurationMinutes]: DEFAULTS.defaultDurationMinutes,
-      [STORAGE_KEYS.allowMmddParsing]: DEFAULTS.allowMmddParsing
+      [STORAGE_KEYS.allowMmddParsing]: DEFAULTS.allowMmddParsing,
+      [STORAGE_KEYS.enabled]: DEFAULTS.enabled
     }, (items) => resolve(items));
   });
 }
@@ -64,6 +67,8 @@ async function handleMouseUp(event) {
   if (!text || !text.trim()) return;
 
   const settings = await getSettings();
+  const enabled = settings?.[STORAGE_KEYS.enabled] ?? DEFAULTS.enabled;
+  if (!enabled) return;
   const allowMmdd = settings?.[STORAGE_KEYS.allowMmddParsing] ?? DEFAULTS.allowMmddParsing;
   const parsed = typeof window.gcalParseDate === "function"
     ? window.gcalParseDate(text, allowMmdd)

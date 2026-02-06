@@ -2,11 +2,21 @@ import { DEFAULTS, STORAGE_KEYS } from "../shared/constants.js";
 
 const CALENDAR_ENDPOINT = "https://www.googleapis.com/calendar/v3/calendars/primary/events";
 
+
+function updateBadge(enabled) {
+  const text = enabled ? "" : "OFF";
+  chrome.action.setBadgeText({ text });
+  if (!enabled) {
+    chrome.action.setBadgeBackgroundColor({ color: "#57606a" });
+  }
+}
+
 function getSettings() {
   return chrome.storage.sync.get({
     [STORAGE_KEYS.defaultStartTime]: DEFAULTS.defaultStartTime,
     [STORAGE_KEYS.defaultDurationMinutes]: DEFAULTS.defaultDurationMinutes,
-    [STORAGE_KEYS.allowMmddParsing]: DEFAULTS.allowMmddParsing
+    [STORAGE_KEYS.allowMmddParsing]: DEFAULTS.allowMmddParsing,
+    [STORAGE_KEYS.enabled]: DEFAULTS.enabled
   });
 }
 
@@ -143,4 +153,31 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     }
   })();
   return true;
+});
+
+
+chrome.runtime.onInstalled.addListener(() => {
+  chrome.storage.sync.get({
+    [STORAGE_KEYS.enabled]: DEFAULTS.enabled
+  }, (items) => {
+    updateBadge(items[STORAGE_KEYS.enabled]);
+  });
+});
+
+chrome.storage.onChanged.addListener((changes, areaName) => {
+  if (areaName !== "sync") return;
+  if (changes[STORAGE_KEYS.enabled]) {
+    updateBadge(changes[STORAGE_KEYS.enabled].newValue);
+  }
+});
+
+chrome.action.onClicked.addListener(() => {
+  chrome.storage.sync.get({
+    [STORAGE_KEYS.enabled]: DEFAULTS.enabled
+  }, (items) => {
+    const next = !items[STORAGE_KEYS.enabled];
+    chrome.storage.sync.set({
+      [STORAGE_KEYS.enabled]: next
+    }, () => updateBadge(next));
+  });
 });
